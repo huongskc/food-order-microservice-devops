@@ -84,9 +84,17 @@ This project implements a microservices-based architecture using Spring Boot and
 
 1. **Clone the repository:**
 ```bash
-https://github.com/Vanhuyne/food-order-microservice.gitspringboot-3-micro-service-demo.git
+https://github.com/Vanhuyne/food-order-microservice.git
 ```
 2. **Navigate to the project directory:**
 3. **Build and package each component with Maven**
+
+## Screenshot
+![user-interface](./screenshot/restaurant.png)
+![order-interface](./screenshot/order.png)
+![order-interface](./screenshot/order-proress.png)
+![restaurant-interface](./screenshot/user.png)
+![restaurant-interface](./screenshot/mail-template.png)
+
 
 
