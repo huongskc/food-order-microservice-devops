@@ -2,9 +2,7 @@ package com.vanhuy.restaurant_service.controller;
 
 
 import com.vanhuy.restaurant_service.dto.RestaurantDTO;
-import com.vanhuy.restaurant_service.dto.RestaurantSearchCriteria;
 import com.vanhuy.restaurant_service.exception.RestaurantNotFoundException;
-import com.vanhuy.restaurant_service.projection.RestaurantProjection;
 import com.vanhuy.restaurant_service.service.FileStorageService;
 import com.vanhuy.restaurant_service.service.RestaurantService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +22,6 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/v1/restaurants")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
@@ -37,8 +34,13 @@ public class RestaurantController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<RestaurantDTO>> getAllRestaurants(@RequestParam int page, @RequestParam int size) {
+    public ResponseEntity<Page<RestaurantDTO>> getAllRestaurants(@RequestParam int page,
+                                                                 @RequestParam int size ,
+                                                                 @RequestParam(required = false) String keyword) {
         Pageable pageable = PageRequest.of(page, size);
+        if (keyword != null && !keyword.isEmpty()) {
+            return ResponseEntity.ok(restaurantService.searchRestaurants(keyword, pageable));
+        }
         return ResponseEntity.ok(restaurantService.getRestaurantsByPage(pageable));
     }
 
@@ -66,10 +68,4 @@ public class RestaurantController {
                 .body(resource);
     }
 
-    @GetMapping("/search")
-    public Page<RestaurantDTO> searchRestaurants(
-            @RequestParam(required = false) String keyword,
-            Pageable pageable) {
-        return restaurantService.searchRestaurants(keyword, pageable);
-    }
 }

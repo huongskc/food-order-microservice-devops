@@ -44,12 +44,9 @@ public class AuthService {
             String jwt = jwtUtil.generateToken(userDetails);
             log.info("User {} logged in successfully", loginRequest.getUsername());
             return new AuthResponse(jwt);
-        } catch (BadCredentialsException e) {
+        } catch (Exception e) {
             log.warn("Authentication failed for user: {}", loginRequest.getUsername());
             throw new AuthException("Invalid username or password");
-        } catch (Exception e) {
-            log.error("Unexpected error during authentication for user: {}", loginRequest.getUsername(), e);
-            throw new AuthException("An unexpected error occurred during authentication");
         }
     }
 

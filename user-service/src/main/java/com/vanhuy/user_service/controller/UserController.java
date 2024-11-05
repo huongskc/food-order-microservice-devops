@@ -5,6 +5,7 @@ import com.vanhuy.user_service.dto.ProfileUpdateDTO;
 import com.vanhuy.user_service.dto.UserDTO;
 import com.vanhuy.user_service.model.User;
 import com.vanhuy.user_service.service.FileStorageService;
+import com.vanhuy.user_service.service.ProfileService;
 import com.vanhuy.user_service.service.UserService;
 import org.springframework.core.io.Resource;
 import jakarta.validation.Valid;
@@ -30,10 +31,11 @@ import java.util.Optional;
 public class UserController {
     private final UserService userService;
     private final FileStorageService fileStorageService;
+    private final ProfileService profileService;
 
     @GetMapping("/profile")
     public ResponseEntity<ProfileResponse> getProfile(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(userService.getProfile(user.getUserId()));
+        return ResponseEntity.ok(profileService.getProfile(user.getUserId()));
     }
 
     @PutMapping("/profile")
@@ -44,7 +46,7 @@ public class UserController {
 
         Optional.ofNullable(profileImage).ifPresent(this::validateImage);
 
-        return ResponseEntity.ok(userService.updateProfile(user.getUserId(), profileDTO, profileImage));
+        return ResponseEntity.ok(profileService.updateProfile(user.getUserId(), profileDTO, profileImage));
     }
 
     @DeleteMapping("/{userId}")
@@ -69,7 +71,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{username}")
+    @GetMapping("/username/{username}")
     public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
         return ResponseEntity.ok(userService.getByUsername(username));
     }

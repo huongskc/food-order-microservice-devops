@@ -31,8 +31,10 @@ export class AuthService {
     , private authEventService: AuthEventService,
   ) {
     // Subscribe to token updates
-    this.authEventService.tokenUpdate$.subscribe(token => {
+    this.authEventService.tokenUpdate$.subscribe( (token: string )=> {
       this.setToken(token);
+      console.log('Token updated' + token);
+      
     });
   }
 
@@ -58,11 +60,9 @@ export class AuthService {
 
   private setToken(token: string) {
     localStorage.setItem(this.tokenKey, token);
-    const decodedUsername = this.getUsernameFromToken();
-    this.currentUser.next(decodedUsername);
-    const decodedRole = this.getRoleFromToken();
-    this.role.next(decodedRole);
-    this.loggedIn.next(true);
+    this.currentUser.next(this.getUsernameFromToken());
+    this.role.next(this.getRoleFromToken());
+    this.loggedIn.next(true)
   }
 
   getToken(): string | null {

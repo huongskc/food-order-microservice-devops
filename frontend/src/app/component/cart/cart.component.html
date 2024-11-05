@@ -4,7 +4,7 @@
     <div class="flex flex-col lg:flex-row gap-8">
       <div class="flex-grow">
         <div *ngFor="let item of cartItems" class="flex items-center gap-4 py-6 border-b">
-          <img [src]="baseUrl + '/menu-items/images/' + item.menuItem.imageUrl" [alt]="item.menuItem.name" class="w-24 h-24 object-cover">
+          <img [src]="item.menuItem.imageUrl" [alt]="item.menuItem.name" class="w-24 h-24 object-cover">
           <div class="flex-grow">
             <h3 class="text-lg font-semibold">{{ item.menuItem.name }}</h3>
             <p class="font-semibold mt-1">${{ item.menuItem.price.toFixed(2) }}</p>

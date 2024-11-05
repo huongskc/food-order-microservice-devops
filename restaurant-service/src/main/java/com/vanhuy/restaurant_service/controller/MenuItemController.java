@@ -21,7 +21,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/menu-items")
-@CrossOrigin(origins = "*")
+
 public class MenuItemController {
     private final MenuItemService menuItemService;
     private final RestaurantService restaurantService;

@@ -25,7 +25,7 @@ export class UserService {
   ) { }
 
   getUserByUsername(username: string): Observable<UserDTO> {
-    return this.http.get<UserDTO>(`${this.userUrl}/${username}`).pipe(
+    return this.http.get<UserDTO>(`${this.userUrl}/username/${username}`).pipe(
       tap(user => this.setUserInfo(user)),
       catchError(this.handleError)
     );
@@ -49,7 +49,7 @@ export class UserService {
     }).pipe(
       tap((profileResponse: ProfileResponse) => {
         const currentUser = this.userSubject.getValue(); // Get the current user info
-
+        debugger;
         if (currentUser) {
           // Update the userSubject with new profile details
           const updatedUser: UserDTO = {
@@ -92,8 +92,8 @@ export class UserService {
       })
     );
   }
-  setUserInfo(user: UserDTO) {
 
+  setUserInfo(user: UserDTO) {
     this.userSubject.next(user);
   }
 

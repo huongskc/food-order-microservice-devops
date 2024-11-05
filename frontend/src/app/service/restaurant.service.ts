@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Restaurant } from '../dto/Restaurant';
@@ -18,8 +18,12 @@ export class RestaurantService {
 
   constructor(private http: HttpClient) { }
 
-  getAllRestaurants(page: number, size: number): Observable<Page<Restaurant>> {
-    return this.http.get<Page<Restaurant>>(`${this.restaurantUrl}?page=${page}&size=${size}`);
+  getAllRestaurants(page: number, size: number , keyword? : string): Observable<Page<Restaurant>> {
+    let param = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    if (keyword) {
+      param = param.set('keyword', keyword);
+    }
+    return this.http.get<Page<Restaurant>>(this.restaurantUrl, { params: param });
   }
 
   getMenuItemsByRestaurantId(restaurantId: number): Observable<MenuItem[]> {
