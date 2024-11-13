@@ -8,7 +8,7 @@
         <div class="space-y-4">
           <ul class="space-y-4">
             <li *ngFor="let item of cartItems$ | async" class="flex items-center space-x-4">
-              <img [src]="baseUrl +'/menu-items/images/' + item.menuItem.imageUrl" [alt]="item.menuItem.name" class="w-16 h-16 object-cover">
+              <img [src]="item.menuItem.imageUrl" [alt]="item.menuItem.name" class="w-16 h-16 object-cover">
               <div class="flex-grow">
                 <p class="text-gray-800 font-medium">{{ item.menuItem.name }}</p>
                 <p class="text-gray-600 text-sm">Quantity: {{ item.quantity }}</p>
