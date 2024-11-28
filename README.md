@@ -1,88 +1,78 @@
 # Spring Boot Microservices Project
 
-A modern, scalable food delivery system built with Spring Boot microservices architecture.
+A scalable food delivery system designed using Spring Boot microservices architecture, enabling seamless integration and performance.
 
 ## 🏗️ Architecture Overview
-
-This project implements a microservices-based architecture using Spring Boot and Spring Cloud, designed for scalability and maintainability.
+This project adopts a microservices-based architecture, ensuring modularity, fault isolation, and scalability.
 
 ![Architecture Diagram](./screenshot/architecture.png)
 
 ## 🚀 Key Components
 ### Backend Services
-- **API Gateway** (Port: 8080)
-  - Single entry point for all client requests
-  - Request routing and load balancing
-  - Built with Spring Cloud Gateway
-    
-- **Eureka Service Discovery** (Port: 8761)
-  - Service registration and discovery
-  - Load balancing support
-  - Health monitoring
-
-- **User Service** (Port: 8081)
-  - User management and authentication
-  - Profile management
-  - JWT-based security
-    
-- **Restaurant Service** (Port: 8082)
-  - Restaurant information management
-  - Menu management
-  - Image handling for restaurants and menu items
-    
-- **Order Service** (Port: 8083)
-  - Order processing and management
-  - Integration with restaurant and user services
-  - Order status tracking
-    
-- **Notification Service** (Port: 8084)
-  - Email notifications
-  - Kafka-based event processing
-  - Template-based email generation
+- **API Gateway** (Port: 8080) : Single entry point for requests, handling routing and load balancing.
+- **Eureka Service Discovery** (Port: 8761) : Registers and discovers microservices for load balancing and monitoring.
+- **User Service** (Port: 8081) : Manages user authentication, profiles, and JWT security.
+- **Restaurant Service** (Port: 8082) : Handles restaurant data, menus, and image uploads.
+- **Order Service** (Port: 8083) : Processes orders, integrates with users/restaurants, and tracks order statuses.
+- **Notification Service** (Port: 8084) : Sends event-driven email notifications using Kafka.
 
 ### Frontend
-- **Angular Application** (Port: 4200)
-  - Modern UI built with Angular 17
-  - Responsive design
-  - JWT authentication integration
+- Modern UI built with Angular 17.
+- Features intuitive design and JWT-based authentication.
 
 ## 🛠️ Technologies Used
-- **Backend**
-  - Java 21
-  - Spring Boot 3.3.4
-  - Spring Cloud 2023.0.3
-  - Spring Security + JWT
-  - MySQL
-  - Apache Kafka
-  - OpenAPI (Swagger)
+**Backend**
+  - Java 21, Spring Boot 3.3.4, Spring Cloud 2023.0.3
+  - Spring Security (JWT), MySQL, Kafka, OpenAPI (Swagger)
 
-- **Frontend**
-  - Angular 17
-  - TypeScript
-  - RxJS
-  - TailwindCSS
-
-- **DevOps & Tools**
-  - Docker
-  - Maven
-  - Git
+**Frontend**
+  - Angular 17, TypeScript, RxJS, TailwindCSS
+    
+**DevOps & Tools**
+  - Docker, Maven, Git
 
 ## 📋 Prerequisites
-- Java 21
-- Node.js 18+
-- MySQL 8+
-- Docker
-- Maven
-- Kafka
+Before running the project, ensure the following are installed:
+- Java 21, Node.js 18+, MySQL 8+, Kafka, Docker, Maven
 
-## 🚀 Installation
-1. **Clone the repository:**
-```bash
-https://github.com/Vanhuyne/food-order-microservice.git
-```
-2. **Navigate to the project directory:**
-3. **Build and package each component with Maven**
+## 🚀 Running Services Independently
+Each microservice in this project can be run as a standalone Spring Boot application. Follow the steps below to run individual services.
 
+**1. Steps to Run an Individual Service:**
+1. **Prerequisites:**
+   
+    ```bash
+    https://github.com/Vanhuyne/food-order-microservice.git
+    cd food-order-microservice
+    ```
+3. **Navigate to the Service Directory:**
+   
+   Each service has its own directory. For example:
+    ```bash
+    cd user-service
+    ```
+5. **Configure Application Properties**
+   
+    - Open src/main/resources/application.properties or application.yml
+    - Update database and service-specific configurations. Example for MySQL:
+      
+    ```bash
+    spring.datasource.url=jdbc:mysql://localhost:3306/user_service_db
+    spring.datasource.username=username
+    spring.datasource.password=password
+    ```
+6. **Build the Service**
+   
+     Run the following command to package the service:
+     ```bash
+     mvn clean install
+     ```
+     
+**2. Running with Docker:**
+    Build docker to use Kafka
+    
+    docker-compose up -d
+  
 ## Screenshot
 ![user-interface](./screenshot/restaurant.png)
 ![order-interface](./screenshot/order.png)
