@@ -67,6 +67,13 @@ Each microservice in this project can be run as a standalone Spring Boot applica
      ```bash
      mvn clean install
      ```
+7. **Set up the frontend**
+   
+     ```bash
+     cd frontend
+     npm install
+     npm start
+     ```
      
 **2. Running with Docker:**
     Build docker to use Kafka
