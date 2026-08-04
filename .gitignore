@@ -33,3 +33,9 @@ build/
 .vscode/
 
 mysql/data/mysql.sock
+
+/docs
+
+/nginx-lb
+
+.gitignore
