@@ -1,6 +1,5 @@
 package com.vanhuy.api_gateway.component;
 
-import com.vanhuy.api_gateway.dto.ValidTokenResponse;
 import com.vanhuy.api_gateway.service.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,18 +49,12 @@ public class ConfigGlobalFilter implements GlobalFilter, Ordered {
             return handleUnauthorized(exchange);
         }
 
-        try {
-            ValidTokenResponse validateToken = authService.validateToken(token);
-            if (validateToken == null || !validateToken.isValid()) {
-                logger.warn("Invalid token: {}", token);
-                return handleUnauthorized(exchange);
-            }
-        } catch (RuntimeException e) {
-            // Log the error
-            logger.error("Error during token validation", e);
-            return handleServerError(exchange, e);
-        }
-        return chain.filter(exchange);
+        return authService.validateToken(token)
+                .flatMap(validation -> validation.isValid()
+                        ? chain.filter(exchange)
+                        : handleUnauthorized(exchange))
+                .switchIfEmpty(Mono.defer(() -> handleUnauthorized(exchange)))
+                .onErrorResume(error -> handleServerError(exchange, error));
     }
 
     @Override
