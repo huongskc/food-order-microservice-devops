@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/enviroment';
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { ForgotPasswordRequest } from '../dto/password-reset/ForgotPasswordRequest';
 import { Observable } from 'rxjs';
