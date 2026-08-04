@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, switchMap, tap, throwError } from 'rxjs';
 import { AuthResponse } from '../dto/auth/AuthResponse';
-import { environment } from '../../environments/enviroment';
+import { environment } from '../../environments/environment';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { UserService } from './user.service';
 import { UserDTO } from '../dto/auth/UserDTO';

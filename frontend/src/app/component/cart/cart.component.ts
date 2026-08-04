@@ -4,7 +4,7 @@ import { CartItem } from '../../dto/CartItem';
 import { OrderService } from '../../service/order.service';
 import { Router } from '@angular/router';
 import { CartService } from '../../service/cart.service';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 import { AuthService } from '../../service/auth.service';
 
 @Component({

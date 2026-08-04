@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { Restaurant } from '../dto/Restaurant';
 import { Page } from '../dto/Page';
 import { MenuItem } from '../dto/MenuItem';
-import { environment } from '../../environments/enviroment';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'

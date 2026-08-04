@@ -6,7 +6,7 @@ import { OrderRequest } from '../../dto/order/order-request';
 import { CartService } from '../../service/cart.service';
 import { CartItem } from '../../dto/CartItem';
 import { Observable, map, switchMap, take } from 'rxjs';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 import { UserService } from '../../service/user.service';
 
 @Component({

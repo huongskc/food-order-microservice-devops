@@ -5,7 +5,7 @@ import { UserCreateDTO, UserDTO, UserUpdateDTO } from '../dto/auth/UserDTO';
 import { ProfileResponse } from '../dto/user/ProfileResponse';
 import { ProfileUpdateDTO } from '../dto/user/ProfileUpdateDTO';
 import { AuthEventService } from './auth-event.service';
-import { environment } from '../../environments/enviroment';
+import { environment } from '../../environments/environment';
 import { Page } from '../dto/Page';
 
 @Injectable({
