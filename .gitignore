@@ -34,8 +34,7 @@ build/
 
 mysql/data/mysql.sock
 
-/docs
-
-/nginx-lb
-
-.gitignore
+# Local documentation and infrastructure assets
+/docs/
+/nginx-lb/
+/k8s/
