@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -37,9 +38,9 @@ public class OrderService {
     private final NotificationClient notificationClient;
 
     // create order
-    public OrderResponse createOrder(OrderRequest orderRequest) {
+    public OrderResponse createOrder(OrderRequest orderRequest, Integer authenticatedUserId) {
         Order order = new Order();
-        order.setUserId(orderRequest.getUserId());
+        order.setUserId(authenticatedUserId);
         order.setStatus(Order.OrderStatus.PENDING);
         order.setPaymentStatus(Order.PaymentStatus.PENDING);
         order.setOrderDate(LocalDateTime.now());
@@ -91,9 +92,12 @@ public class OrderService {
                 .map(this::orderToOrderResponse);
     }
 
-    public OrderResponse getOrderById(Integer orderId) {
+    public OrderResponse getOrderById(Integer orderId, Integer authenticatedUserId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+        if (!order.getUserId().equals(authenticatedUserId)) {
+            throw new AccessDeniedException("You cannot access this order");
+        }
         return orderToOrderResponse(order);
     }
 
