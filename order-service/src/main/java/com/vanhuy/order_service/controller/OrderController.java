@@ -24,14 +24,14 @@ public class OrderController {
     @PostMapping()
     public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest orderRequest,
                                                      @AuthenticationPrincipal Jwt jwt) {
-        OrderResponse orderResponse = orderService.createOrder(orderRequest, jwt.getClaim("userId"));
+        OrderResponse orderResponse = orderService.createOrder(orderRequest, getAuthenticatedUserId(jwt));
         return new ResponseEntity<>(orderResponse, HttpStatus.CREATED);
     }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponse> getOrder(@PathVariable Integer orderId,
                                                   @AuthenticationPrincipal Jwt jwt) {
-        OrderResponse orderResponse = orderService.getOrderById(orderId, jwt.getClaim("userId"));
+        OrderResponse orderResponse = orderService.getOrderById(orderId, getAuthenticatedUserId(jwt));
         return new ResponseEntity<>(orderResponse, HttpStatus.OK);
     }
 
@@ -44,5 +44,10 @@ public class OrderController {
         Pageable pageable = PageRequest.of(page, size);
         Page<OrderResponse> orders = orderService.getAllOrders(pageable);
         return ResponseEntity.ok(orders);
+    }
+
+    private Integer getAuthenticatedUserId(Jwt jwt) {
+        Number userId = jwt.getClaim("userId");
+        return userId.intValue();
     }
 }
