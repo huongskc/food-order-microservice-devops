@@ -1,7 +1,5 @@
 package com.vanhuy.order_service.config;
 
-import com.nimbusds.jose.jwk.source.ImmutableSecret;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,10 +10,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
@@ -45,20 +47,37 @@ public class SecurityConfig {
     JwtDecoder jwtDecoder() {
         byte[] key = Base64.getDecoder().decode(secretKey);
         SecretKeySpec secret = new SecretKeySpec(key, "HmacSHA256");
-        return NimbusJwtDecoder.withSecretKey(secret).build();
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secret).build();
+
+        OAuth2TokenValidator<Jwt> userIdValidator = new JwtClaimValidator<>("userId", claim ->
+                claim instanceof Number number
+                        && number.longValue() > 0
+                        && number.longValue() <= Integer.MAX_VALUE);
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+                JwtValidators.createDefault(),
+                userIdValidator));
+
+        return decoder;
     }
 
     private Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
         return jwt -> {
-            List<Map<String, String>> roles = jwt.getClaimAsMap("roles") == null
-                    ? List.of()
-                    : jwt.getClaim("roles");
+            Object rolesClaim = jwt.getClaims().get("roles");
+            Collection<?> roles = rolesClaim instanceof Collection<?> values ? values : List.of();
             Collection<SimpleGrantedAuthority> authorities = roles.stream()
-                    .map(role -> role.get("authority"))
+                    .map(this::extractAuthority)
                     .filter(value -> value != null && !value.isBlank())
                     .map(SimpleGrantedAuthority::new)
                     .toList();
             return new JwtAuthenticationToken(jwt, authorities, jwt.getSubject());
         };
+    }
+
+    private String extractAuthority(Object role) {
+        if (role instanceof Map<?, ?> roleMap) {
+            Object authority = roleMap.get("authority");
+            return authority instanceof String value ? value : null;
+        }
+        return role instanceof String value ? value : null;
     }
 }
