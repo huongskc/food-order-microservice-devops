@@ -7,6 +7,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -19,17 +20,11 @@ public class ConfigGlobalFilter implements GlobalFilter, Ordered {
     private static final Logger logger = LoggerFactory.getLogger(ConfigGlobalFilter.class);
 
     private final AuthService authService;
-    private static final List<String> PUBLIC_ENDPOINTS = List.of(
+    private static final List<String> PUBLIC_AUTH_ENDPOINTS = List.of(
             "/api/v1/auth/login",
             "/api/v1/auth/register",
             "/api/v1/auth/forgot",
-            "/api/v1/auth/reset",
-            "/aggregate/",
-            "/swagger-ui/index.html",
-            "/swagger-ui/**",
-            "/api-docs/**",
-            "/api/v1/restaurants",
-            "/api/v1/menu-items"
+            "/api/v1/auth/reset"
     );
 
     public ConfigGlobalFilter(AuthService authService) {
@@ -40,7 +35,7 @@ public class ConfigGlobalFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
 
-        if (isPublicEndpoint(path)) {
+        if (isPublicEndpoint(path, exchange.getRequest().getMethod())) {
             return chain.filter(exchange);
         }
 
@@ -62,8 +57,22 @@ public class ConfigGlobalFilter implements GlobalFilter, Ordered {
         return Ordered.HIGHEST_PRECEDENCE;
     }
 
-    private boolean isPublicEndpoint(String path) {
-        return PUBLIC_ENDPOINTS.stream().anyMatch(path::startsWith);
+    private boolean isPublicEndpoint(String path, HttpMethod method) {
+        if (PUBLIC_AUTH_ENDPOINTS.contains(path)) {
+            return true;
+        }
+
+        if (path.startsWith("/swagger-ui/") || path.startsWith("/api-docs/")) {
+            return true;
+        }
+
+        return HttpMethod.GET.equals(method)
+                && (isPathOrChild(path, "/api/v1/restaurants")
+                || isPathOrChild(path, "/api/v1/menu-items"));
+    }
+
+    private boolean isPathOrChild(String path, String root) {
+        return path.equals(root) || path.startsWith(root + "/");
     }
 
     private String extractToken(ServerWebExchange exchange) {
