@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: food-order
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: food-order
+      app.kubernetes.io/component: notification-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: food-order
+        app.kubernetes.io/component: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: huongskc/food-order-notification-service:v1
+          imagePullPolicy: Always
+          ports:
+            - name: noti-service
+              containerPort: 8084
+          env:
+            - name: EUREKA_SERVER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: food-order-config
+                  key: EUREKA_SERVER_URL
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: food-order-config
+                  key: KAFKA_BOOTSTRAP_SERVERS
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: food-order
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: notification-service
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: notification-service
+  ports:
+    - name: noti-service
+      port: 8084
+      targetPort: noti-service

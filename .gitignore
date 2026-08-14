@@ -36,5 +36,4 @@ mysql/data/mysql.sock
 
 # Local documentation and infrastructure assets
 /docs/
-/nginx-lb/
-/k8s/
+/nginx-lb/rancher.conf

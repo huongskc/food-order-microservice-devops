@@ -1,0 +1,26 @@
+# ConfigMap for Food Order Service
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: food-order-config
+  namespace: food-order
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: configuration
+data:
+  EUREKA_SERVER_URL: "http://eureka-service:8761/eureka/"
+  EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+
+  USER_DB_URL: "jdbc:mysql://mysql:3306/user_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false"
+  RESTAURANT_DB_URL: "jdbc:mysql://mysql:3306/restaurant_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false"
+  ORDER_DB_URL: "jdbc:mysql://mysql:3306/order_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false"
+
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:8084/api/v1/notifications"
+
+  FRONTEND_URL: "https://food.myproject.bar"
+  PUBLIC_BASE_URL: "https://food.myproject.bar"
+  USER_UPLOAD_DIR: "/app/src/main/resources/uploads"
+  RESTAURANT_UPLOAD_DIR: "/app/src/main/resources/uploads"
