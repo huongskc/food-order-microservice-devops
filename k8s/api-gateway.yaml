@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: food-order-api-gateway
+  namespace: food-order
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: food-order-api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: food-order
+      app.kubernetes.io/component: food-order-api-gateway
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: food-order
+        app.kubernetes.io/component: food-order-api-gateway
+    spec:
+      containers:
+        - name: food-order-api-gateway
+          image: huongskc/food-order-api-gateway:v1
+          imagePullPolicy: Always
+          ports:
+            - name: api-gateway
+              containerPort: 9000
+          env:
+            - name: SPRING_DATA_REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: food-order-config
+                  key: REDIS_HOST
+            - name: SPRING_DATA_REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: food-order-config
+                  key: REDIS_PORT
+            - name: EUREKA_SERVER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: food-order-config
+                  key: EUREKA_SERVER_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: food-order
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: food-order-api-gateway
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: food-order-api-gateway
+  ports:
+    - name: api-gateway
+      port: 9000
+      targetPort: api-gateway
