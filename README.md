@@ -1,91 +1,241 @@
-# Spring Boot Microservices Project
+# Food Order Microservices - On-Premises DevOps Project
 
-A scalable food delivery system designed using Spring Boot microservices architecture, enabling seamless integration and performance.
+The application source was forked from an existing food-order microservices project. The main work in this repository is containerization, configuration, Kubernetes deployment, storage, networking, and basic operations.
 
-## 🏗️ Architecture Overview
-This project adopts a microservices-based architecture, ensuring modularity, fault isolation, and scalability.
+Live demo: [https://food.myproject.bar](https://food.myproject.bar)
 
-![Architecture Diagram](./screenshot/architecture.png)
+## Project Goals
 
-## 🚀 Key Components
-### Backend Services
-- **API Gateway** (Port: 8080) : Single entry point for requests, handling routing and load balancing.
-- **Eureka Service Discovery** (Port: 8761) : Registers and discovers microservices for load balancing and monitoring.
-- **User Service** (Port: 8081) : Manages user authentication, profiles, and JWT security.
-- **Restaurant Service** (Port: 8082) : Handles restaurant data, menus, and image uploads.
-- **Order Service** (Port: 8083) : Processes orders, integrates with users/restaurants, and tracks order statuses.
-- **Notification Service** (Port: 8084) : Sends event-driven email notifications using Kafka.
+- Write Dockerfiles for all services.
+- Build and push images to DockerHub.
+- Build a Kubernetes cluster with `kubeadm` on VMware.
+- Deploy the full application with Kubernetes YAML files.
+- Expose the website through Nginx and Cloudflare Tunnel.
+- Use Rancher to manage and inspect the cluster.
 
-### Frontend
-- Modern UI built with Angular 17.
-- Features intuitive design and JWT-based authentication.
+## What Was Implemented
 
-## 🛠️ Technologies Used
-**Backend**
-  - Java 21, Spring Boot 3.3.4, Spring Cloud 2023.0.3
-  - Spring Security (JWT), MySQL, Kafka, OpenAPI (Swagger)
+- Local dependencies with Docker Compose: Redis, ZooKeeper, and Kafka.
+- Dockerfiles and `.dockerignore` files for the frontend and all backend services.
+- DockerHub images under the `huongskc` namespace.
+- A Kubernetes cluster with one control plane and two workers.
+- Kubernetes ConfigMap, Secret, Deployment, Service, Ingress, PV, and PVC resources.
+- Static NFS storage for MySQL and uploaded images.
+- Public access through Cloudflare Tunnel.
+- Rancher cluster management.
 
-**Frontend**
-  - Angular 17, TypeScript, RxJS, TailwindCSS
-    
-**DevOps & Tools**
-  - Docker, Maven, Git
+## Architecture
 
-## 📋 Prerequisites
-Before running the project, ensure the following are installed:
-- Java 21, Node.js 18+, MySQL 8+, Kafka, Docker, Maven
+```text
+Internet User
+     |
+     v
+Cloudflare Tunnel
+     |
+     v
+Nginx Load Balancer
+     |
+     v
+Nginx Ingress Controller - NodePort 30080
+     |
+     +-- /     --> Angular Frontend
+     |
+     +-- /api  --> API Gateway :9000
+                       |
+                       +-- User Service         :8081 --> MySQL user_db
+                       |                                --> NFS user uploads
+                       |
+                       +-- Restaurant Service   :8082 --> MySQL restaurant_db
+                       |                                --> NFS restaurant uploads
+                       |
+                       +-- Order Service        :8083 --> MySQL order_db
+                       |
+                       +-- Redis                :6379
 
-## 🚀 Running Services Independently
-Each microservice in this project can be run as a standalone Spring Boot application. Follow the steps below to run individual services.
+User Service -----+
+                  +--> Kafka :9092 --> Notification Service :8084
+Order Service ----+
 
-**1. Steps to Run an Individual Service:**
-1. **Prerequisites:**
-   
-    ```bash
-    https://github.com/Vanhuyne/food-order-microservice.git
-    cd food-order-microservice
-    ```
-3. **Navigate to the Service Directory:**
-   
-   Each service has its own directory. For example:
-    ```bash
-    cd user-service
-    ```
-5. **Configure Application Properties**
-   
-    - Open src/main/resources/application.properties or application.yml
-    - Update database and service-specific configurations. Example for MySQL:
-      
-    ```bash
-    spring.datasource.url=jdbc:mysql://localhost:3306/user_service_db
-    spring.datasource.username=username
-    spring.datasource.password=password
-    ```
-6. **Build the Service**
-   
-     Run the following command to package the service:
-     ```bash
-     mvn clean install
-     ```
-7. **Set up the frontend**
-   
-     ```bash
-     cd frontend
-     npm install
-     npm start
-     ```
-     
-**2. Running with Docker:**
-    Build docker to use Kafka
-    
-    docker-compose up -d
-  
-## Screenshot
-![user-interface](./screenshot/restaurant.png)
-![order-interface](./screenshot/order.png)
-![order-interface](./screenshot/order-proress.png)
-![restaurant-interface](./screenshot/user.png)
-![restaurant-interface](./screenshot/mail-template.png)
+API Gateway and backend services <--> Eureka Service :8761
+Rancher                           --> Kubernetes cluster management
+```
 
+Only the frontend and API paths are public. Backend services and infrastructure use Kubernetes `ClusterIP` services inside the cluster.
 
+## Application Services
 
+| Component | Port | Purpose |
+|---|---:|---|
+| Frontend | `80` | Angular web interface |
+| API Gateway | `9000` | Routing, JWT validation, rate limiting, and circuit breaker |
+| Eureka | `8761` | Service discovery |
+| User Service | `8081` | Registration, login, profile, and JWT |
+| Restaurant Service | `8082` | Restaurants, menu items, and image uploads |
+| Order Service | `8083` | Order creation and order history |
+| Notification Service | `8084` | Kafka events and email notifications |
+| MySQL | `3306` | Three application databases |
+| Redis | `6379` | API Gateway rate limiter |
+| Kafka | `9092` | Asynchronous notification events |
+| ZooKeeper | `2181` | Kafka coordination for this lab setup |
+
+## On-Premises Infrastructure
+
+| Virtual machine | Internal IP | Role |
+|---|---:|---|
+| `loadbalancer-server` | `192.168.1.101` | Nginx and Cloudflare Tunnel |
+| `storage-server` | `192.168.1.102` | NFS server |
+| `k8s-master-1` | `192.168.1.110` | Kubernetes control plane |
+| `k8s-master-2` | `192.168.1.111` | Kubernetes worker |
+| `k8s-master-3` | `192.168.1.112` | Kubernetes worker |
+| `rancher-server` | `192.168.1.115` | Rancher server |
+
+Current cluster setup:
+
+- Ubuntu Server 24.04 LTS.
+- Kubernetes `v1.30.14`.
+- One control plane and two worker nodes.
+- Pod network: `172.16.0.0/16`.
+- Nginx Ingress NodePorts: `30080` and `30443`.
+
+## Technology Stack
+
+### Application
+
+- Java 21
+- Spring Boot 3.3.4
+- Spring Cloud 2023.0.3
+- Angular 17
+- MySQL, Redis, Kafka, ZooKeeper, and Eureka
+
+### DevOps
+
+- Docker and Docker Compose
+- DockerHub
+- Kubernetes
+- Rancher
+- NFS Kernel Server
+- Nginx
+- Cloudflare Tunnel
+- VMware Workstation
+
+## Repository Structure
+
+```text
+.
+|-- api-gateway/
+|-- eureka-service/
+|-- user-service/
+|-- restaurant-service/
+|-- order-service/
+|-- notification-service/
+|-- frontend/
+|-- k8s/                 Kubernetes manifests
+|-- nginx-lb/            Nginx load balancer configuration
+|-- docs/                Project documentation
+|-- screenshot/          Application screenshots
+`-- docker-compose.yml   Local infrastructure dependencies
+```
+
+Each application service has its own Dockerfile.
+
+## Kubernetes Deployment
+
+The detailed infrastructure guide is available in [docs/onprem-setup.md](./docs/onprem-setup.md).
+
+### 1. Create configuration
+
+```bash
+kubectl create namespace food-order
+kubectl apply -f k8s/configmap.yaml
+```
+
+Copy `k8s/secret.example.yaml` to `k8s/secret.yaml`, add local credentials, and apply it:
+
+```bash
+kubectl apply -f k8s/secret.yaml
+```
+
+### 2. Deploy storage and dependencies
+
+Create the NFS directories on `storage-server` before applying the PersistentVolumes:
+
+```bash
+sudo mkdir -p /data/nfs-shared/food-order/mysql
+sudo mkdir -p /data/nfs-shared/food-order/user-uploads
+sudo mkdir -p /data/nfs-shared/food-order/restaurant-uploads
+```
+
+Deploy storage and MySQL:
+
+```bash
+kubectl apply -f k8s/storage.yaml
+kubectl apply -f k8s/mysql.yaml
+kubectl -n food-order rollout status deployment/mysql --timeout=5m
+```
+
+Open the MySQL client with the root password from the Kubernetes Secret:
+
+```bash
+kubectl -n food-order exec -it deployment/mysql -- mysql -u root -p
+```
+
+Create the databases and grant access to the application user. Replace `<DB_PASSWORD>` with the value of `DB_PASSWORD` in the `k8s/secret.yaml`:
+
+```sql
+CREATE DATABASE IF NOT EXISTS user_db;
+CREATE DATABASE IF NOT EXISTS restaurant_db;
+CREATE DATABASE IF NOT EXISTS order_db;
+
+CREATE USER IF NOT EXISTS 'food_order_app'@'%' IDENTIFIED BY '<DB_PASSWORD>';
+GRANT ALL PRIVILEGES ON user_db.* TO 'food_order_app'@'%';
+GRANT ALL PRIVILEGES ON restaurant_db.* TO 'food_order_app'@'%';
+GRANT ALL PRIVILEGES ON order_db.* TO 'food_order_app'@'%';
+FLUSH PRIVILEGES;
+```
+
+Deploy the remaining dependencies:
+
+```bash
+kubectl apply -f k8s/redis.yaml
+kubectl apply -f k8s/zookeeper.yaml
+kubectl apply -f k8s/kafka.yaml
+```
+
+### 3. Deploy application services
+
+```bash
+kubectl apply -f k8s/eureka.yaml
+kubectl apply -f k8s/notification.yaml
+kubectl apply -f k8s/user.yaml
+kubectl apply -f k8s/restaurant.yaml
+kubectl apply -f k8s/order.yaml
+kubectl apply -f k8s/api-gateway.yaml
+kubectl apply -f k8s/frontend.yaml
+```
+
+## Verification
+
+Check cluster resources:
+
+```bash
+kubectl get nodes -o wide
+kubectl -n food-order get pods -o wide
+kubectl -n food-order get services
+kubectl -n food-order get endpoints
+kubectl -n food-order get ingress
+kubectl -n food-order get pvc
+kubectl get pv
+```
+
+Check the public website and API from Windows:
+
+```powershell
+curl.exe -I https://food.myproject.bar/
+curl.exe "https://food.myproject.bar/api/v1/restaurants?page=0&size=8"
+```
+
+## Project Source
+
+The original application was forked from [Vanhuyne/food-order-microservice](https://github.com/Vanhuyne/food-order-microservice).
+
+This repository focuses on the DevOps work required to run that application with Docker and Kubernetes in an on-premises lab.
