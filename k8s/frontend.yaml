@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: food-order-frontend
+  namespace: food-order
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: food-order-frontend
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: food-order
+      app.kubernetes.io/component: food-order-frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: food-order
+        app.kubernetes.io/component: food-order-frontend
+    spec:
+      containers:
+        - name: food-order-frontend
+          image: huongskc/food-order-frontend:v1
+          imagePullPolicy: Always
+          ports:
+            - name: frontend
+              containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: food-order-frontend
+  namespace: food-order
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: food-order-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: food-order-frontend
+  ports:
+    - name: frontend
+      port: 80
+      targetPort: frontend
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: food-order-ingress
+  namespace: food-order
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: food.myproject.bar
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 9000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: food-order-frontend
+                port:
+                  number: 80

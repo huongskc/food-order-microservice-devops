@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka-service
+  namespace: food-order
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: eureka
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: food-order
+      app.kubernetes.io/component: eureka
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: food-order
+        app.kubernetes.io/component: eureka
+    spec:
+      containers:
+        - name: eureka
+          image: huongskc/food-order-eureka-service:v1
+          imagePullPolicy: Always
+          ports:
+            - name: eureka
+              containerPort: 8761
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka-service
+  namespace: food-order
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: eureka
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: eureka
+  ports:
+    - name: eureka  
+      port: 8761
+      targetPort: eureka
