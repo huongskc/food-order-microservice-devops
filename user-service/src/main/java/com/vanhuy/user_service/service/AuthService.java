@@ -4,7 +4,7 @@ import com.vanhuy.user_service.client.NotificationClient;
 import com.vanhuy.user_service.component.JwtUtil;
 import com.vanhuy.user_service.dto.*;
 import com.vanhuy.user_service.exception.AuthException;
-import com.vanhuy.user_service.exception.UserNotFoundException;
+import com.vanhuy.user_service.exception.DuplicateUserException;
 import com.vanhuy.user_service.model.Role;
 import com.vanhuy.user_service.model.User;
 import com.vanhuy.user_service.repository.UserRepository;
@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,7 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -67,11 +65,11 @@ public class AuthService {
     }
 
     private void validateNewUserCredentials(RegisterRequest registerRequest) {
-        if (userRepository.findByUsernameAndIsActiveTrue(registerRequest.getUsername()).isPresent()) {
-            throw new UserNotFoundException("Username is already taken");
+        if (userRepository.existsByUsername(registerRequest.getUsername())) {
+            throw new DuplicateUserException("Username is already taken");
         }
-        if (userRepository.findByUsernameAndIsActiveTrue(registerRequest.getEmail()).isPresent()) {
-            throw new UserNotFoundException("Email is already in use");
+        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+            throw new DuplicateUserException("Email is already in use");
         }
     }
 

@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: food-order-mysql-pv
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: mysql
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteMany # Allow multiple pods to read and write to the volume
+  persistentVolumeReclaimPolicy: Retain # Retain the volume after the PVC is deleted
+  storageClassName: ""
+  nfs:
+    server: 192.168.1.102
+    path: /data/nfs-shared/food-order/mysql
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: food-order
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: mysql
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: ""
+  volumeName: food-order-mysql-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: food-order-user-upload-pv
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: user-upload
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  nfs:
+    server: 192.168.1.102
+    path: /data/nfs-shared/food-order/user-uploads
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: user-upload-pvc
+  namespace: food-order
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: user-upload
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: ""
+  volumeName: food-order-user-upload-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: food-order-restaurant-upload-pv
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: restaurant-upload
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  nfs:
+    server: 192.168.1.102
+    path: /data/nfs-shared/food-order/restaurant-uploads
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: restaurant-upload-pvc
+  namespace: food-order
+  labels:
+    app.kubernetes.io/name: food-order
+    app.kubernetes.io/component: restaurant-upload
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: ""
+  volumeName: food-order-restaurant-upload-pv

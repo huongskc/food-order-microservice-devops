@@ -2,6 +2,7 @@ package com.vanhuy.user_service.service;
 
 import com.vanhuy.user_service.component.UserMapper;
 import com.vanhuy.user_service.dto.UserDTO;
+import com.vanhuy.user_service.exception.DuplicateUserException;
 import com.vanhuy.user_service.exception.UserNotFoundException;
 import com.vanhuy.user_service.model.User;
 import com.vanhuy.user_service.repository.UserRepository;
@@ -122,22 +123,22 @@ public class UserService {
     }
 
     private void validateNewUser(UserDTO userDTO) {
-        if (userRepository.findByUsernameAndIsActiveTrue(userDTO.getUsername()).isPresent()) {
-            throw new UserNotFoundException("Username is already taken");
+        if (userRepository.existsByUsername(userDTO.getUsername())) {
+            throw new DuplicateUserException("Username is already taken");
         }
-        if (userRepository.findByUsernameAndIsActiveTrue(userDTO.getEmail()).isPresent()) {
-            throw new UserNotFoundException("Email is already in use");
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
+            throw new DuplicateUserException("Email is already in use");
         }
     }
 
     private void validateUpdateUser(UserDTO userDTO, User existingUser) {
         if (!existingUser.getUsername().equals(userDTO.getUsername()) &&
-                userRepository.existsByUsernameAndIsActiveTrue(userDTO.getUsername())) {
-            throw new UserNotFoundException("Username already exists");
+                userRepository.existsByUsername(userDTO.getUsername())) {
+            throw new DuplicateUserException("Username already exists");
         }
         if (!existingUser.getEmail().equals(userDTO.getEmail()) &&
-                userRepository.existsByEmailAndIsActiveTrue(userDTO.getEmail())) {
-            throw new UserNotFoundException("Email already exists");
+                userRepository.existsByEmail(userDTO.getEmail())) {
+            throw new DuplicateUserException("Email already exists");
         }
     }
 
