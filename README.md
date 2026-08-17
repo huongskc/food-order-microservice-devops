@@ -138,9 +138,12 @@ Current cluster setup:
 
 Each application service has its own Dockerfile.
 
-## Kubernetes Deployment
+## Documentation
 
-The detailed infrastructure guide is available in [docs/onprem-setup.md](./docs/onprem-setup.md).
+- [On-Premises Infrastructure Setup](./docs/onprem-setup.md)
+- [GitHub Actions Self-Hosted Runner Setup](./docs/self-hosted-runner-setup.md)
+
+## Kubernetes Deployment
 
 ### 1. Create configuration
 
