@@ -266,3 +266,9 @@ Import the newly created Kubernetes cluster into Rancher for centralized managem
 ```bash
 curl --insecure -sfL https://rancher.myproject.bar/v3/import/<CLUSTER_TOKEN>.yaml | kubectl apply -f -
 ```
+
+## 7. CI/CD Runner
+
+The GitHub Actions self-hosted runner runs on `k8s-master-1`.
+
+See the [Self-Hosted Runner Setup Guide](self-hosted-runner-setup.md) for installation, Kubernetes access, and service operations.
