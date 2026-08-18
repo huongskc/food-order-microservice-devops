@@ -43,3 +43,15 @@ jobs:
           context: ./order-service
           push: ${{ github.event_name == 'push' }}
           tags: ${{ env.DOCKER_IMAGE }}
+
+  deploy:
+    name: Deploy to Kubernetes
+    needs: containerize
+    if: github.event_name == 'push'
+    runs-on: [self-hosted, Linux, X64]
+    timeout-minutes: 10
+
+    steps:
+      - name: Update order image
+        run: |
+          kubectl -n food-order set image deployment/order-service order-service=${{ env.DOCKER_IMAGE }}
