@@ -18,9 +18,9 @@ spring:
                 fallbackUri: forward:/fallback/restaurant
             - name: RequestRateLimiter
               args:
-                redis-rate-limiter.replenishRate: 10 # 10 request mỗi giây
-                redis-rate-limiter.burstCapacity: 50 # có thể chứa tối đa 20 request tại bất kỳ thời điểm nào.
-                redis-rate-limiter.requestedTokens: 1 # mỗi request sẽ tiêu tốn 1 token
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 50
+                redis-rate-limiter.requestedTokens: 1
         - id: order-service
           uri: lb://order-service
           predicates:
@@ -61,15 +61,25 @@ resilience4j:
         permittedNumberOfCallsInHalfOpenState: 3
         automaticTransitionFromOpenToHalfOpenEnabled: true
         waitDurationInOpenState: 10s
-        timeoutDuration: 5s
         failureRateThreshold: 50
     instances:
       restaurantCircuitBreaker:
-        aseConfig: default
+        baseConfig: default
       orderCircuitBreaker:
-        aseConfig: default
+        baseConfig: default
       userCircuitBreaker:
-        aseConfig: default
+        baseConfig: default
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 10s
+    instances:
+      restaurantCircuitBreaker:
+        baseConfig: default
+      orderCircuitBreaker:
+        baseConfig: default
+      userCircuitBreaker:
+        baseConfig: default
 
 server:
   port: 9000
