@@ -1,5 +1,7 @@
 package com.vanhuy.order_service.dto;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,5 +15,7 @@ public class OrderRequest {
     private String contactEmail;
     private String shippingAddress;
     private String contactPhone;
-    private List<OrderItemRequest> items;
+
+    @NotEmpty(message = "items must not be empty")
+    private List<@Valid OrderItemRequest> items;
 }
