@@ -23,6 +23,45 @@ Live demo: [https://food.myproject.bar](https://food.myproject.bar)
 - Static NFS storage for MySQL and uploaded images.
 - Public access through Cloudflare Tunnel.
 - Rancher cluster management.
+- GitHub Actions builds Docker images and deploys them to Kubernetes with a self-hosted runner.
+
+## Demo Results
+
+The latest on-premises deployment was checked with the following results:
+
+- The public website is available at [food.myproject.bar](https://food.myproject.bar).
+- Users can browse coffee shops, view menu items, add items to a cart, and create an order.
+- Rancher shows all application workloads as active.
+- Eureka shows the API Gateway and four backend services as `UP`.
+- GitHub Actions builds a Docker image and deploys it to Kubernetes after a change is merged into `dev`.
+
+### Application flow
+
+#### Coffee shop catalog
+
+![Coffee shop catalog](./screenshot/homepage.png)
+
+#### Menu items
+
+![Menu items](./screenshot/menu.png)
+
+#### Order confirmation
+
+![Order confirmation](./screenshot/order-confirmed.png)
+
+### Platform and delivery
+
+#### GitHub Actions build and deployment
+
+![GitHub Actions build and deployment](./screenshot/github-actions-deploy.png)
+
+#### Rancher workloads
+
+![Rancher workloads](./screenshot/rancher-workloads.png)
+
+#### Eureka service discovery
+
+![Eureka service discovery](./screenshot/eureka-services.png)
 
 ## Architecture
 
