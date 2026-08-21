@@ -24,16 +24,9 @@ Live demo: [https://food.myproject.bar](https://food.myproject.bar)
 - Public access through Cloudflare Tunnel.
 - Rancher cluster management.
 - GitHub Actions builds Docker images and deploys them to Kubernetes with a self-hosted runner.
+- Metrics Server, Prometheus, and Grafana for Kubernetes resource monitoring.
 
 ## Demo Results
-
-The latest on-premises deployment was checked with the following results:
-
-- The public website is available at [food.myproject.bar](https://food.myproject.bar).
-- Users can browse coffee shops, view menu items, add items to a cart, and create an order.
-- Rancher shows all application workloads as active.
-- Eureka shows the API Gateway and four backend services as `UP`.
-- GitHub Actions builds a Docker image and deploys it to Kubernetes after a change is merged into `dev`.
 
 ### Application flow
 
@@ -62,6 +55,10 @@ The latest on-premises deployment was checked with the following results:
 #### Eureka service discovery
 
 ![Eureka service discovery](./screenshot/eureka-services.png)
+
+#### Grafana Kubernetes monitoring
+
+![Grafana Kubernetes monitoring](./screenshot/grafana-monitoring.png)
 
 ## Architecture
 
@@ -97,6 +94,7 @@ Order Service ----+
 
 API Gateway and backend services <--> Eureka Service :8761
 Rancher                           --> Kubernetes cluster management
+Prometheus                        --> Kubernetes metrics --> Grafana dashboards
 ```
 
 Only the frontend and API paths are public. Backend services and infrastructure use Kubernetes `ClusterIP` services inside the cluster.
@@ -156,6 +154,9 @@ Current cluster setup:
 - Nginx
 - Cloudflare Tunnel
 - VMware Workstation
+- Helm
+- Metrics Server
+- Prometheus and Grafana
 
 ## Repository Structure
 
@@ -169,6 +170,7 @@ Current cluster setup:
 |-- notification-service/
 |-- frontend/
 |-- k8s/                 Kubernetes manifests
+|-- monitoring/          Prometheus and Grafana configuration
 |-- nginx-lb/            Nginx load balancer configuration
 |-- docs/                Project documentation
 |-- screenshot/          Application screenshots
@@ -180,101 +182,9 @@ Each application service has its own Dockerfile.
 ## Documentation
 
 - [On-Premises Infrastructure Setup](./docs/onprem-setup.md)
+- [Kubernetes Application Deployment](./docs/kubernetes-deployment.md)
 - [GitHub Actions Self-Hosted Runner Setup](./docs/self-hosted-runner-setup.md)
-
-## Kubernetes Deployment
-
-### 1. Create configuration
-
-```bash
-kubectl create namespace food-order
-kubectl apply -f k8s/configmap.yaml
-```
-
-Copy `k8s/secret.example.yaml` to `k8s/secret.yaml`, add local credentials, and apply it:
-
-```bash
-kubectl apply -f k8s/secret.yaml
-```
-
-### 2. Deploy storage and dependencies
-
-Create the NFS directories on `storage-server` before applying the PersistentVolumes:
-
-```bash
-sudo mkdir -p /data/nfs-shared/food-order/mysql
-sudo mkdir -p /data/nfs-shared/food-order/user-uploads
-sudo mkdir -p /data/nfs-shared/food-order/restaurant-uploads
-```
-
-Deploy storage and MySQL:
-
-```bash
-kubectl apply -f k8s/storage.yaml
-kubectl apply -f k8s/mysql.yaml
-kubectl -n food-order rollout status deployment/mysql --timeout=5m
-```
-
-Open the MySQL client with the root password from the Kubernetes Secret:
-
-```bash
-kubectl -n food-order exec -it deployment/mysql -- mysql -u root -p
-```
-
-Create the databases and grant access to the application user. Replace `<DB_PASSWORD>` with the value of `DB_PASSWORD` in the `k8s/secret.yaml`:
-
-```sql
-CREATE DATABASE IF NOT EXISTS user_db;
-CREATE DATABASE IF NOT EXISTS restaurant_db;
-CREATE DATABASE IF NOT EXISTS order_db;
-
-CREATE USER IF NOT EXISTS 'food_order_app'@'%' IDENTIFIED BY '<DB_PASSWORD>';
-GRANT ALL PRIVILEGES ON user_db.* TO 'food_order_app'@'%';
-GRANT ALL PRIVILEGES ON restaurant_db.* TO 'food_order_app'@'%';
-GRANT ALL PRIVILEGES ON order_db.* TO 'food_order_app'@'%';
-FLUSH PRIVILEGES;
-```
-
-Deploy the remaining dependencies:
-
-```bash
-kubectl apply -f k8s/redis.yaml
-kubectl apply -f k8s/zookeeper.yaml
-kubectl apply -f k8s/kafka.yaml
-```
-
-### 3. Deploy application services
-
-```bash
-kubectl apply -f k8s/eureka.yaml
-kubectl apply -f k8s/notification.yaml
-kubectl apply -f k8s/user.yaml
-kubectl apply -f k8s/restaurant.yaml
-kubectl apply -f k8s/order.yaml
-kubectl apply -f k8s/api-gateway.yaml
-kubectl apply -f k8s/frontend.yaml
-```
-
-## Verification
-
-Check cluster resources:
-
-```bash
-kubectl get nodes -o wide
-kubectl -n food-order get pods -o wide
-kubectl -n food-order get services
-kubectl -n food-order get endpoints
-kubectl -n food-order get ingress
-kubectl -n food-order get pvc
-kubectl get pv
-```
-
-Check the public website and API from Windows:
-
-```powershell
-curl.exe -I https://food.myproject.bar/
-curl.exe "https://food.myproject.bar/api/v1/restaurants?page=0&size=8"
-```
+- [Prometheus and Grafana Monitoring Setup](./docs/monitoring-setup.md)
 
 ## Project Source
 

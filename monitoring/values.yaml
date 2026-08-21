@@ -1,0 +1,81 @@
+# Lightweight values for the on-premises homelab.
+
+alertmanager:
+  enabled: false
+
+defaultRules:
+  create: false
+
+# These components run as static Pods in this kubeadm lab. They are not needed
+# for the first node and workload dashboard.
+kubeEtcd:
+  enabled: false
+
+kubeControllerManager:
+  enabled: false
+
+kubeScheduler:
+  enabled: false
+
+grafana:
+  persistence:
+    enabled: true
+    existingClaim: monitoring-grafana-pvc
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          storageClassName: ""
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: monitoring
+              app.kubernetes.io/component: prometheus
+          resources:
+            requests:
+              storage: 5Gi
+
+prometheusOperator:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+prometheus-node-exporter:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
