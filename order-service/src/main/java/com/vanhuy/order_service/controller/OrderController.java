@@ -3,6 +3,7 @@ package com.vanhuy.order_service.controller;
 import com.vanhuy.order_service.dto.OrderRequest;
 import com.vanhuy.order_service.dto.OrderResponse;
 import com.vanhuy.order_service.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -22,7 +23,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping()
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest orderRequest,
+    public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest orderRequest,
                                                      @AuthenticationPrincipal Jwt jwt) {
         OrderResponse orderResponse = orderService.createOrder(orderRequest, getAuthenticatedUserId(jwt));
         return new ResponseEntity<>(orderResponse, HttpStatus.CREATED);

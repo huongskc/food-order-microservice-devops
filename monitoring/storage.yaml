@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: monitoring-prometheus-pv
+  labels:
+    app.kubernetes.io/name: monitoring
+    app.kubernetes.io/component: prometheus
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  nfs:
+    server: 192.168.1.102
+    path: /data/nfs-shared/monitoring/prometheus
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: monitoring-grafana-pv
+  labels:
+    app.kubernetes.io/name: monitoring
+    app.kubernetes.io/component: grafana
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  nfs:
+    server: 192.168.1.102
+    path: /data/nfs-shared/monitoring/grafana
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: monitoring-grafana-pvc
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: monitoring
+    app.kubernetes.io/component: grafana
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: ""
+  volumeName: monitoring-grafana-pv
