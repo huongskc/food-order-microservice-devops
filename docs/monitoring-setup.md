@@ -113,6 +113,3 @@ The installed chart provides Kubernetes dashboards for checking:
 - namespace and Pod memory usage;
 - node capacity and usage;
 - workload and Pod status.
-
-The installation is working when the Prometheus data source is available and the
-Kubernetes dashboards display node, namespace, and Pod metrics.

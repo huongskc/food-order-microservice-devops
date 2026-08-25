@@ -12,6 +12,7 @@ Live demo: [https://food.myproject.bar](https://food.myproject.bar)
 - Deploy the full application with Kubernetes YAML files.
 - Expose the website through Nginx and Cloudflare Tunnel.
 - Use Rancher to manage and inspect the cluster.
+- Add basic Kubernetes monitoring and centralized logging.
 
 ## What Was Implemented
 
@@ -25,6 +26,7 @@ Live demo: [https://food.myproject.bar](https://food.myproject.bar)
 - Rancher cluster management.
 - GitHub Actions builds Docker images and deploys them to Kubernetes with a self-hosted runner.
 - Metrics Server, Prometheus, and Grafana for Kubernetes resource monitoring.
+- Loki and Grafana Alloy for centralized Kubernetes Pod logs with three-day retention.
 
 ## Demo Results
 
@@ -59,6 +61,10 @@ Live demo: [https://food.myproject.bar](https://food.myproject.bar)
 #### Grafana Kubernetes monitoring
 
 ![Grafana Kubernetes monitoring](./screenshot/grafana-monitoring.png)
+
+#### Centralized service logs
+
+![Centralized service logs in Grafana Explore](./screenshot/grafana-loki-logs.png)
 
 ## Architecture
 
@@ -95,6 +101,7 @@ Order Service ----+
 API Gateway and backend services <--> Eureka Service :8761
 Rancher                           --> Kubernetes cluster management
 Prometheus                        --> Kubernetes metrics --> Grafana dashboards
+Kubernetes Pod stdout/stderr     --> Alloy DaemonSet --> Loki on NFS --> Grafana Explore
 ```
 
 Only the frontend and API paths are public. Backend services and infrastructure use Kubernetes `ClusterIP` services inside the cluster.
@@ -157,6 +164,7 @@ Current cluster setup:
 - Helm
 - Metrics Server
 - Prometheus and Grafana
+- Loki and Grafana Alloy
 
 ## Repository Structure
 
@@ -171,9 +179,10 @@ Current cluster setup:
 |-- frontend/
 |-- k8s/                 Kubernetes manifests
 |-- monitoring/          Prometheus and Grafana configuration
+|-- logging/             Loki, Alloy and Grafana datasource configuration
 |-- nginx-lb/            Nginx load balancer configuration
 |-- docs/                Project documentation
-|-- screenshot/          Application screenshots
+|-- screenshot/          Application and platform evidence
 `-- docker-compose.yml   Local infrastructure dependencies
 ```
 
@@ -185,6 +194,7 @@ Each application service has its own Dockerfile.
 - [Kubernetes Application Deployment](./docs/kubernetes-deployment.md)
 - [GitHub Actions Self-Hosted Runner Setup](./docs/self-hosted-runner-setup.md)
 - [Prometheus and Grafana Monitoring Setup](./docs/monitoring-setup.md)
+- [Loki and Grafana Alloy Logging Setup](./docs/logging-setup.md)
 
 ## Project Source
 

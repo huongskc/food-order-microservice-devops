@@ -1,0 +1,58 @@
+crds:
+  create: false
+
+alloy:
+  enableReporting: false
+  configMap:
+    create: false
+    name: alloy-config
+    key: config.alloy
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: false
+    capabilities:
+      drop:
+        - ALL
+    runAsNonRoot: true
+    runAsUser: 473
+    runAsGroup: 473
+    seccompProfile:
+      type: RuntimeDefault
+
+configReloader:
+  enabled: false
+
+controller:
+  type: daemonset
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+
+rbac:
+  rules:
+    - apiGroups:
+        - ""
+      resources:
+        - pods
+        - pods/log
+      verbs:
+        - get
+        - list
+        - watch
+  clusterRules:
+    - apiGroups:
+        - ""
+      resources:
+        - namespaces
+      verbs:
+        - get
+        - list
+        - watch
