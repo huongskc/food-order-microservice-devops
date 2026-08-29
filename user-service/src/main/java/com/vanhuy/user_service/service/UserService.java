@@ -1,6 +1,8 @@
 package com.vanhuy.user_service.service;
 
 import com.vanhuy.user_service.component.UserMapper;
+import com.vanhuy.user_service.dto.CreateUserRequest;
+import com.vanhuy.user_service.dto.UpdateUserRequest;
 import com.vanhuy.user_service.dto.UserDTO;
 import com.vanhuy.user_service.exception.DuplicateUserException;
 import com.vanhuy.user_service.exception.UserNotFoundException;
@@ -62,10 +64,10 @@ public class UserService {
     }
 
     // new user
-    public UserDTO create(UserDTO userDTO) {
-        validateNewUser(userDTO);
+    public UserDTO create(CreateUserRequest userRequest) {
+        validateNewUser(userRequest);
 
-        User user = userMapper.toEntity(userDTO);
+        User user = userMapper.toEntity(userRequest);
         user.setActive(true);
         if (user.getRoles() == null || user.getRoles().isEmpty()) {
             user.setRoles(Set.of("ROLE_USER"));
@@ -75,7 +77,7 @@ public class UserService {
         return userMapper.toUserDTO(savedUser);
     }
 
-    public UserDTO updateUser(Integer id, UserDTO userDTO) {
+    public UserDTO updateUser(Integer id, UpdateUserRequest userRequest) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
@@ -83,15 +85,15 @@ public class UserService {
             throw new UserNotFoundException("Cannot update inactive user");
         }
 
-        validateUpdateUser(userDTO, existingUser);
-        updateEntity(existingUser, userDTO);
+        validateUpdateUser(userRequest, existingUser);
+        updateEntity(existingUser, userRequest);
 
         User updatedUser = userRepository.save(existingUser);
         return userMapper.toUserDTO(updatedUser);
     }
 
     // update entity
-    public void updateEntity(User user, UserDTO dto) {
+    public void updateEntity(User user, UpdateUserRequest dto) {
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
         user.setAddress(dto.getAddress());
@@ -122,22 +124,22 @@ public class UserService {
         return userMapper.toUserDTO(reactivatedUser);
     }
 
-    private void validateNewUser(UserDTO userDTO) {
-        if (userRepository.existsByUsername(userDTO.getUsername())) {
+    private void validateNewUser(CreateUserRequest userRequest) {
+        if (userRepository.existsByUsername(userRequest.getUsername())) {
             throw new DuplicateUserException("Username is already taken");
         }
-        if (userRepository.existsByEmail(userDTO.getEmail())) {
+        if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new DuplicateUserException("Email is already in use");
         }
     }
 
-    private void validateUpdateUser(UserDTO userDTO, User existingUser) {
-        if (!existingUser.getUsername().equals(userDTO.getUsername()) &&
-                userRepository.existsByUsername(userDTO.getUsername())) {
+    private void validateUpdateUser(UpdateUserRequest userRequest, User existingUser) {
+        if (!existingUser.getUsername().equals(userRequest.getUsername()) &&
+                userRepository.existsByUsername(userRequest.getUsername())) {
             throw new DuplicateUserException("Username already exists");
         }
-        if (!existingUser.getEmail().equals(userDTO.getEmail()) &&
-                userRepository.existsByEmail(userDTO.getEmail())) {
+        if (!existingUser.getEmail().equals(userRequest.getEmail()) &&
+                userRepository.existsByEmail(userRequest.getEmail())) {
             throw new DuplicateUserException("Email already exists");
         }
     }

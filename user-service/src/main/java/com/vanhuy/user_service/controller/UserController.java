@@ -2,6 +2,8 @@ package com.vanhuy.user_service.controller;
 
 import com.vanhuy.user_service.dto.ProfileResponse;
 import com.vanhuy.user_service.dto.ProfileUpdateDTO;
+import com.vanhuy.user_service.dto.CreateUserRequest;
+import com.vanhuy.user_service.dto.UpdateUserRequest;
 import com.vanhuy.user_service.dto.UserDTO;
 import com.vanhuy.user_service.model.User;
 import com.vanhuy.user_service.service.FileStorageService;
@@ -97,8 +99,8 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO userDTO) {
-        UserDTO createdUser = userService.create(userDTO);
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody CreateUserRequest userRequest) {
+        UserDTO createdUser = userService.create(userRequest);
         return ResponseEntity
                 .created(URI.create("/api/users/" + createdUser.getUserId()))
                 .body(createdUser);
@@ -108,8 +110,8 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO> updateUser(
             @PathVariable Integer id,
-            @Valid @RequestBody UserDTO userDTO) {
-        return ResponseEntity.ok(userService.updateUser(id, userDTO));
+            @Valid @RequestBody UpdateUserRequest userRequest) {
+        return ResponseEntity.ok(userService.updateUser(id, userRequest));
     }
 
     @PostMapping("/{id}/deactivate")

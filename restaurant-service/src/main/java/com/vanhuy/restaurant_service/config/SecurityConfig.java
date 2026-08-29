@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/api-docs",
                                 "/api-docs/**"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/internal/menu-items/**").authenticated()
                         .requestMatchers(HttpMethod.GET, RESTAURANT_ENDPOINTS).permitAll()
                         .requestMatchers(RESTAURANT_ENDPOINTS).hasRole("ADMIN")
                         .anyRequest().authenticated())
