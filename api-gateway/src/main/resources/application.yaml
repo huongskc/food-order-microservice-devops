@@ -84,6 +84,9 @@ resilience4j:
 server:
   port: 9000
 
+jwt:
+  secretKey: ${JWT_SECRET}
+
 #eureka
 eureka:
   client:

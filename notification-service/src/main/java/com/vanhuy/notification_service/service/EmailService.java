@@ -1,7 +1,6 @@
 package com.vanhuy.notification_service.service;
 
 import com.vanhuy.notification_service.dto.OrderResponse;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +9,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.exceptions.TemplateInputException;
 
 import java.util.Map;
 
@@ -43,7 +41,7 @@ public class EmailService {
 
             javaMailSender.send(msg);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Failed to send welcome email", e);
         }
     }
 
@@ -68,9 +66,8 @@ public class EmailService {
             helper.setText(html, true);
 
             javaMailSender.send(msg);
-        } catch (TemplateInputException | MessagingException e) {
-            System.err.println("Error while parsing template for forgot password email: " + e.getMessage());
-            e.printStackTrace();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to send password reset email", e);
         }
     }
 
@@ -98,9 +95,8 @@ public class EmailService {
             helper.setText(html, true);
 
             javaMailSender.send(msg);
-        } catch (TemplateInputException | MessagingException e) {
-            System.err.println("Error while parsing template for order email: " + e.getMessage());
-            e.printStackTrace();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to send order confirmation email", e);
         }
     }
 

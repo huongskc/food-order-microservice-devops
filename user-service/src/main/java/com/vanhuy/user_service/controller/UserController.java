@@ -73,6 +73,7 @@ public class UserController {
     }
 
     @GetMapping("/username/{username}")
+    @PreAuthorize("#username == authentication.name or hasRole('ADMIN')")
     public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
         return ResponseEntity.ok(userService.getByUsername(username));
     }
