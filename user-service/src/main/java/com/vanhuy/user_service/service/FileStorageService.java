@@ -62,7 +62,7 @@ public class FileStorageService {
 
     public Resource loadFileAsResource(String fileName) {
         try {
-            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+            Path filePath = resolveSafePath(fileName);
             Resource resource = new UrlResource(filePath.toUri());
             if(resource.exists()) {
                 return resource;
@@ -76,10 +76,22 @@ public class FileStorageService {
 
     public void deleteFile(String fileName) {
         try {
-            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+            Path filePath = resolveSafePath(fileName);
             Files.deleteIfExists(filePath);
         } catch (IOException ex) {
             log.error("Error deleting file: {}", fileName, ex);
         }
+    }
+
+    private Path resolveSafePath(String fileName) {
+        if (!StringUtils.hasText(fileName)) {
+            throw new IllegalArgumentException("Invalid file path");
+        }
+
+        Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+        if (!filePath.startsWith(this.fileStorageLocation)) {
+            throw new IllegalArgumentException("Invalid file path");
+        }
+        return filePath;
     }
 }

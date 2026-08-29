@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,8 +25,10 @@ public class OrderController {
 
     @PostMapping()
     public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest orderRequest,
-                                                     @AuthenticationPrincipal Jwt jwt) {
-        OrderResponse orderResponse = orderService.createOrder(orderRequest, getAuthenticatedUserId(jwt));
+                                                     @AuthenticationPrincipal Jwt jwt,
+                                                     @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        OrderResponse orderResponse = orderService.createOrder(
+                orderRequest, getAuthenticatedUserId(jwt), authorizationHeader);
         return new ResponseEntity<>(orderResponse, HttpStatus.CREATED);
     }
 

@@ -46,6 +46,11 @@ spec:
                 configMapKeyRef:
                   name: food-order-config
                   key: EUREKA_SERVER_URL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: food-order-secret
+                  key: JWT_SECRET
 ---
 apiVersion: v1
 kind: Service
