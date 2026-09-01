@@ -1,18 +1,18 @@
 <div class="flex flex-col min-h-screen">
     <header class="bg-white text-gray-700 p-4 border-b-2 border-gray-400">
-        <nav class="container mx-auto grid grid-cols-12 px-40">
-            <div class="col-span-4 flex items-center">
+        <nav class="container mx-auto grid grid-cols-1 gap-4 px-0 sm:px-4 md:grid-cols-3 md:items-center lg:px-8">
+            <div class="flex items-center justify-center md:justify-start">
                 <div class="text-2xl font-bold">O-COFFEE</div>
             </div>
-            <div class="col-span-4 flex justify-center items-center">
-                <div class="space-x-4">
-                    <a href="/" class="hover:text-blue-300 px-2">Home</a>
-                    <a href="/" class="hover:text-blue-300 px-2">About</a>
-                    <a href="/" class="hover:text-blue-300 px-2">Discover</a>
+            <div class="flex items-center justify-center">
+                <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+                    <a href="/" class="hover:text-blue-300">Home</a>
+                    <a href="/" class="hover:text-blue-300">About</a>
+                    <a href="/" class="hover:text-blue-300">Discover</a>
                 </div>
             </div>
-            <div class="col-span-4 flex justify-end items-center">
-                <div class="space-x-6">
+            <div class="flex items-center justify-center md:justify-end">
+                <div class="flex flex-wrap items-center justify-center gap-4 md:justify-end">
                     <a routerLink="/cart" class="hover:text-blue-300 relative">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="h-6 w-6 inline">
@@ -27,7 +27,7 @@
                     </a>
                     <!-- Kiểm tra trạng thái đăng nhập -->
                     <ng-container *ngIf="isLoggedIn; else loggedOutTemplate">
-                        <a routerLink="/profile"><span  class="text-gray-800 font-bold">Hi, {{ currentUser }}</span></a>
+                        <a routerLink="/profile" class="max-w-full break-words text-center text-gray-800 font-bold">Hi, {{ currentUser }}</a>
                         <button (click)="logout()" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
                             Logout 
                         </button>
@@ -46,8 +46,8 @@
         </nav>
     </header>
 
-    <main class="flex-1 p-4 bg-gray-100">
-        <div class="container mx-auto px-40 ">
+    <main class="flex-1 bg-gray-100 p-3 sm:p-6">
+        <div class="container mx-auto px-0 sm:px-4 lg:px-8">
             <router-outlet></router-outlet>
         </div>
     </main>
