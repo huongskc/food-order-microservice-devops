@@ -96,10 +96,18 @@ Apply the Grafana Ingress:
 kubectl apply -f ~/monitoring/ingress.yaml
 kubectl -n monitoring get ingress grafana-ingress
 ```
+## 5. Configure External Nginx Routing
 
-The external Nginx load balancer uses `nginx-lb/grafana.conf`
+Grafana uses the same ingress-nginx upstream. On `loadbalancer-server`, create
+and activate the configuration:
 
-## 5. Access and Verify Grafana
+```bash
+sudo vi /etc/nginx/conf.d/grafana.conf
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+## 6. Access and Verify Grafana
 
 Open Grafana through the public hostname:
 

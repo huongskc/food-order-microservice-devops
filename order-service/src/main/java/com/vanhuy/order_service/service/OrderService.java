@@ -7,6 +7,8 @@ import com.vanhuy.order_service.constant.Constants;
 import com.vanhuy.order_service.dto.OrderItemResponse;
 import com.vanhuy.order_service.dto.OrderRequest;
 import com.vanhuy.order_service.dto.OrderResponse;
+import com.vanhuy.order_service.dto.StockDeductionResponse;
+import com.vanhuy.order_service.dto.StockUpdateRequest;
 import com.vanhuy.order_service.dto.UserDTO;
 import com.vanhuy.order_service.exception.ResourceNotFoundException;
 import com.vanhuy.order_service.model.Order;
@@ -22,7 +24,9 @@ import org.springframework.security.access.AccessDeniedException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -38,7 +42,47 @@ public class OrderService {
     private final NotificationClient notificationClient;
 
     // create order
-    public OrderResponse createOrder(OrderRequest orderRequest, Integer authenticatedUserId) {
+    public OrderResponse createOrder(
+            OrderRequest orderRequest,
+            Integer authenticatedUserId,
+            String authorizationHeader) {
+        Map<Integer, Integer> requestedQuantities = orderRequest.getItems().stream()
+                .collect(Collectors.toMap(
+                        item -> item.getMenuItemId(),
+                        item -> item.getQuantity(),
+                        Integer::sum,
+                        LinkedHashMap::new));
+        Map<Integer, StockDeductionResponse> deductedItems = new LinkedHashMap<>();
+
+        Order savedOrder;
+        try {
+            requestedQuantities.forEach((menuItemId, quantity) -> {
+                StockDeductionResponse deduction = restaurantClient.deductStock(
+                        menuItemId,
+                        new StockUpdateRequest(quantity),
+                        authorizationHeader);
+                deductedItems.put(menuItemId, deduction);
+            });
+
+            Order order = buildOrder(orderRequest, authenticatedUserId, deductedItems);
+            savedOrder = orderRepository.save(order);
+        } catch (RuntimeException ex) {
+            restoreDeductedStock(requestedQuantities, deductedItems, authorizationHeader);
+            throw ex;
+        }
+
+        logger.info("Order created: {}", savedOrder.getOrderId());
+
+        OrderResponse orderResponse = orderToOrderResponse(savedOrder);
+        sendOrderNotification(orderResponse);
+
+        return orderResponse;
+    }
+
+    private Order buildOrder(
+            OrderRequest orderRequest,
+            Integer authenticatedUserId,
+            Map<Integer, StockDeductionResponse> deductedItems) {
         Order order = new Order();
         order.setUserId(authenticatedUserId);
         order.setStatus(Order.OrderStatus.PENDING);
@@ -55,8 +99,8 @@ public class OrderService {
                     orderItem.setOrder(order);
                     orderItem.setMenuItemId(orderItemRequest.getMenuItemId());
                     orderItem.setQuantity(orderItemRequest.getQuantity());
-                    orderItem.setSubtotal(
-                            calculateSubtotal(orderItemRequest.getMenuItemId(), orderItemRequest.getQuantity()));
+                    BigDecimal unitPrice = deductedItems.get(orderItemRequest.getMenuItemId()).unitPrice();
+                    orderItem.setSubtotal(unitPrice.multiply(BigDecimal.valueOf(orderItemRequest.getQuantity())));
                     return orderItem;
                 })
                 .collect(Collectors.toList());
@@ -71,19 +115,23 @@ public class OrderService {
 
         order.setTotalAmount(subtotal.add(tax));
 
-        Order savedOrder = orderRepository.save(order);
-        logger.info("Order created: " + savedOrder);
-
-        // send order notification
-        OrderResponse orderResponse = orderToOrderResponse(savedOrder);
-        sendOrderNotification(orderResponse);
-
-        return orderResponse;
+        return order;
     }
 
-    private BigDecimal calculateSubtotal(Integer menuItemId, Integer quantity) {
-        BigDecimal price = restaurantClient.getPriceByMenuItemId(menuItemId);
-        return price.multiply(BigDecimal.valueOf(quantity));
+    private void restoreDeductedStock(
+            Map<Integer, Integer> requestedQuantities,
+            Map<Integer, StockDeductionResponse> deductedItems,
+            String authorizationHeader) {
+        deductedItems.keySet().forEach(menuItemId -> {
+            try {
+                restaurantClient.restoreStock(
+                        menuItemId,
+                        new StockUpdateRequest(requestedQuantities.get(menuItemId)),
+                        authorizationHeader);
+            } catch (RuntimeException restoreException) {
+                logger.error("Failed to restore stock for menu item: {}", menuItemId, restoreException);
+            }
+        });
     }
 
     // get all orders

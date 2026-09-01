@@ -112,8 +112,15 @@ A dedicated 40GB virtual disk (`/dev/sdb`) is mounted at `/data` to store data f
 
 ### Format and Mount Secondary Disk
 
+Inspect the disk before formatting it:
+
 ```bash
-# 1. Format disk /dev/sdb using ext4 (use 100% capacity)
+lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINTS
+sudo blkid /dev/sdb
+```
+
+```bash
+# 1. Format the confirmed secondary disk using ext4 (use 100% capacity)
 sudo mkfs.ext4 -m 0 /dev/sdb
 
 # 2. Create /data directory and mount the disk

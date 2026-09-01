@@ -1,6 +1,9 @@
 package com.vanhuy.restaurant_service.service;
 
 import com.vanhuy.restaurant_service.dto.MenuItemDTO;
+import com.vanhuy.restaurant_service.dto.StockDeductionResponse;
+import com.vanhuy.restaurant_service.exception.InsufficientStockException;
+import com.vanhuy.restaurant_service.exception.ResourceNotFoundException;
 import com.vanhuy.restaurant_service.exception.RestaurantNotFoundException;
 import com.vanhuy.restaurant_service.model.MenuItem;
 import com.vanhuy.restaurant_service.model.Restaurant;
@@ -10,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -67,6 +71,28 @@ public class MenuItemService {
         MenuItem menuItem = menuItemRepository.findById(menuItemId)
                 .orElseThrow(() -> new RestaurantNotFoundException("Menu item not found"));
         return menuItem.getPrice();
+    }
+
+    @Transactional
+    public StockDeductionResponse deductStock(Integer menuItemId, Integer quantity) {
+        MenuItem menuItem = menuItemRepository.findById(menuItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Menu item not found"));
+
+        int updatedRows = menuItemRepository.deductStock(menuItemId, quantity);
+        if (updatedRows == 0) {
+            throw new InsufficientStockException(
+                    "Insufficient stock for menu item " + menuItemId);
+        }
+
+        return new StockDeductionResponse(menuItemId, menuItem.getPrice());
+    }
+
+    @Transactional
+    public void restoreStock(Integer menuItemId, Integer quantity) {
+        int updatedRows = menuItemRepository.restoreStock(menuItemId, quantity);
+        if (updatedRows == 0) {
+            throw new ResourceNotFoundException("Menu item not found");
+        }
     }
 
     private MenuItemDTO toDTO(MenuItem menuItem) {

@@ -1,5 +1,6 @@
 package com.vanhuy.user_service.component;
 
+import com.vanhuy.user_service.dto.CreateUserRequest;
 import com.vanhuy.user_service.dto.UserDTO;
 import com.vanhuy.user_service.model.User;
 import lombok.RequiredArgsConstructor;
@@ -23,18 +24,14 @@ public class UserMapper {
                 .build();
     }
 
-    public User toEntity(UserDTO userDTO) {
+    public User toEntity(CreateUserRequest userRequest) {
         User user = new User();
-        user.setUserId(userDTO.getUserId());
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setAddress(userDTO.getAddress());
-        user.setProfileImageName(userDTO.getProfileImageName());
-        user.setRoles(userDTO.getRoles());
-        user.setActive(userDTO.isActive());
-        if (userDTO.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        }
+        user.setUsername(userRequest.getUsername());
+        user.setEmail(userRequest.getEmail());
+        user.setAddress(userRequest.getAddress());
+        user.setProfileImageName(userRequest.getProfileImageName());
+        user.setRoles(userRequest.getRoles());
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         return user;
     }
 }
