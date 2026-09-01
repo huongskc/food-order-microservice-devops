@@ -1,19 +1,19 @@
 
 <h2 class="text-2xl font-bold mb-6">Check out</h2>
-  <div class="bg-white shadow-md overflow-hidden">
+  <div class="overflow-hidden rounded-md bg-white shadow-md">
     <div class="flex flex-col md:flex-row">
       <!-- Shipping Information Section -->
-      <div class="w-full md:w-3/5 p-6 md:p-8 border-b md:border-b-0 md:border-r border-gray-200">
-        <h2 class="text-2xl font-semibold mb-6 text-gray-700">Order Summary</h2>
+      <div class="w-full border-b border-gray-200 p-4 sm:p-6 md:w-3/5 md:border-b-0 md:border-r md:p-8">
+        <h2 class="mb-6 text-xl font-semibold text-gray-700 sm:text-2xl">Order Summary</h2>
         <div class="space-y-4">
           <ul class="space-y-4">
-            <li *ngFor="let item of cartItems$ | async" class="flex items-center space-x-4">
-              <img [src]="item.menuItem.imageUrl" [alt]="item.menuItem.name" class="w-16 h-16 object-cover">
-              <div class="flex-grow">
+            <li *ngFor="let item of cartItems$ | async" class="flex items-start gap-3 sm:items-center sm:gap-4">
+              <img [src]="item.menuItem.imageUrl" [alt]="item.menuItem.name" class="h-16 w-16 shrink-0 rounded object-cover">
+              <div class="min-w-0 flex-grow">
                 <p class="text-gray-800 font-medium">{{ item.menuItem.name }}</p>
                 <p class="text-gray-600 text-sm">Quantity: {{ item.quantity }}</p>
               </div>
-              <span class="font-semibold text-gray-800">${{ item.menuItem.price * item.quantity | number:'1.2-2' }}</span>
+              <span class="whitespace-nowrap text-sm font-semibold text-gray-800 sm:text-base">${{ item.menuItem.price * item.quantity | number:'1.2-2' }}</span>
             </li>
           </ul>
           <div class="pt-4 border-t border-gray-200">
@@ -28,8 +28,8 @@
       </div>
 
       <!-- Order Summary Section -->
-      <div class="w-full md:w-2/5 p-6 md:p-8 bg-gray-50">
-        <h2 class="text-2xl font-semibold mb-6 text-gray-700">Shipping Information</h2>
+      <div class="w-full bg-gray-50 p-4 sm:p-6 md:w-2/5 md:p-8">
+        <h2 class="mb-6 text-xl font-semibold text-gray-700 sm:text-2xl">Shipping Information</h2>
         <form [formGroup]="shippingForm" (ngSubmit)="onSubmit()" class="space-y-4">
           
             <div>
