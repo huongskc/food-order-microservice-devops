@@ -40,6 +40,14 @@ Live demo: [https://food.myproject.bar](https://food.myproject.bar)
 
 ![Menu items](./screenshot/menu.png)
 
+#### Shopping cart
+
+![Shopping cart](./screenshot/cart.png)
+
+#### Checkout
+
+![Checkout](./screenshot/checkout.png)
+
 #### Order confirmation
 
 ![Order confirmation](./screenshot/order-confirmed.png)
