@@ -4,75 +4,9 @@ The application source was forked from an existing food-order microservices proj
 
 Live demo: [https://food.myproject.bar](https://food.myproject.bar)
 
-## Project Goals
+## Project Overview
 
-- Write Dockerfiles for all services.
-- Build and push images to DockerHub.
-- Build a Kubernetes cluster with `kubeadm` on VMware.
-- Deploy the full application with Kubernetes YAML files.
-- Expose the website through Nginx and Cloudflare Tunnel.
-- Use Rancher to manage and inspect the cluster.
-- Add basic Kubernetes monitoring and centralized logging.
-
-## What Was Implemented
-
-- Local dependencies with Docker Compose: Redis, ZooKeeper, and Kafka.
-- Dockerfiles and `.dockerignore` files for the frontend and all backend services.
-- DockerHub images under the `huongskc` namespace.
-- A Kubernetes cluster with one control plane and two workers.
-- Kubernetes ConfigMap, Secret, Deployment, Service, Ingress, PV, and PVC resources.
-- Static NFS storage for MySQL and uploaded images.
-- Public access through Cloudflare Tunnel.
-- Rancher cluster management.
-- GitHub Actions builds Docker images and deploys them to Kubernetes with a self-hosted runner.
-- Metrics Server, Prometheus, and Grafana for Kubernetes resource monitoring.
-- Loki and Grafana Alloy for centralized Kubernetes Pod logs with three-day retention.
-
-## Demo Results
-
-### Application flow
-
-#### Coffee shop catalog
-
-![Coffee shop catalog](./screenshot/homepage.png)
-
-#### Menu items
-
-![Menu items](./screenshot/menu.png)
-
-#### Shopping cart
-
-![Shopping cart](./screenshot/cart.png)
-
-#### Checkout
-
-![Checkout](./screenshot/checkout.png)
-
-#### Order confirmation
-
-![Order confirmation](./screenshot/order-confirmed.png)
-
-### Platform and delivery
-
-#### GitHub Actions build and deployment
-
-![GitHub Actions build and deployment](./screenshot/github-actions-deploy.png)
-
-#### Rancher workloads
-
-![Rancher workloads](./screenshot/rancher-workloads.png)
-
-#### Eureka service discovery
-
-![Eureka service discovery](./screenshot/eureka-services.png)
-
-#### Grafana Kubernetes monitoring
-
-![Grafana Kubernetes monitoring](./screenshot/grafana-monitoring.png)
-
-#### Centralized service logs
-
-![Centralized service logs in Grafana Explore](./screenshot/grafana-loki-logs.png)
+This repository provides the delivery and operations platform for the existing food-order application. It runs the complete 11-component system on a three-node, on-premises Kubernetes cluster and covers container delivery, persistent storage, public routing, deployment automation, monitoring, and centralized logging.
 
 ## Architecture
 
@@ -114,6 +48,15 @@ Kubernetes Pod stdout/stderr     --> Alloy DaemonSet --> Loki on NFS --> Grafana
 
 Only the frontend and API paths are public. Backend services and infrastructure use Kubernetes `ClusterIP` services inside the cluster.
 
+## Implementation Highlights
+
+- Containerized seven application components and made their runtime configuration environment-based so the same images can be promoted without rebuilding them for each environment.
+- Deployed the complete 11-component application to a `kubeadm` cluster with one control plane and two worker nodes, using Kubernetes resources for configuration, workloads, networking, and persistence.
+- Provisioned static NFS-backed storage for MySQL data and uploaded user and restaurant images so state remains separate from individual Pods.
+- Created seven path-filtered GitHub Actions workflows that build Docker images, tag them with commit SHAs, push them to Docker Hub, and update the matching Kubernetes deployments through a self-hosted runner.
+- Configured Nginx to route frontend and API traffic, then used Cloudflare Tunnel to publish `food.myproject.bar` over HTTPS without router port forwarding.
+- Combined Prometheus and Grafana metrics with Loki and Grafana Alloy logs, providing a central view of cluster resources, workload status, and application errors with three-day log retention.
+
 ## Application Services
 
 | Component | Port | Purpose |
@@ -149,6 +92,44 @@ Current cluster setup:
 - Pod network: `172.16.0.0/16`.
 - Nginx Ingress NodePorts: `30080` and `30443`.
 
+## Results
+
+### Application flow
+
+#### Coffee shop catalog
+
+![Coffee shop catalog](./screenshot/homepage.png)
+
+#### Checkout
+
+![Checkout](./screenshot/checkout.png)
+
+#### Order confirmation
+
+![Order confirmation](./screenshot/order-confirmed.png)
+
+### Platform and delivery
+
+#### GitHub Actions build and deployment
+
+![GitHub Actions build and deployment](./screenshot/github-actions-deploy.png)
+
+#### Rancher workloads
+
+![Rancher workloads](./screenshot/rancher-workloads.png)
+
+#### Eureka service discovery
+
+![Eureka service discovery](./screenshot/eureka-services.png)
+
+#### Grafana Kubernetes monitoring
+
+![Grafana Kubernetes monitoring](./screenshot/grafana-monitoring.png)
+
+#### Centralized service logs
+
+![Centralized service logs in Grafana Explore](./screenshot/grafana-loki-logs.png)
+
 ## Technology Stack
 
 ### Application
@@ -162,7 +143,7 @@ Current cluster setup:
 ### DevOps
 
 - Docker and Docker Compose
-- DockerHub
+- Docker Hub
 - Kubernetes
 - Rancher
 - NFS Kernel Server
@@ -190,8 +171,7 @@ Current cluster setup:
 |-- logging/             Loki, Alloy and Grafana datasource configuration
 |-- nginx-lb/            Nginx load balancer configuration
 |-- docs/                Project documentation
-|-- screenshot/          Application and platform evidence
-`-- docker-compose.yml   Local infrastructure dependencies
+`-- screenshot/          Application and platform evidence
 ```
 
 Each application service has its own Dockerfile.

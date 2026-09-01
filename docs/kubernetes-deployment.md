@@ -73,7 +73,28 @@ kubectl apply -f k8s/api-gateway.yaml
 kubectl apply -f k8s/frontend.yaml
 ```
 
-## 4. Verify the Deployment
+### Image Versioning and CI Deployments
+
+The application manifests use `:v1` for the initial deployment. GitHub Actions replaces these tags with commit SHAs through `kubectl set image`. Reapplying a manifest restores `:v1`, so check the current images first:
+
+```bash
+kubectl -n food-order get deployments -o custom-columns='DEPLOYMENT:.metadata.name,IMAGE:.spec.template.spec.containers[*].image'
+```
+
+## 4. Configure External Nginx Routing
+
+The load balancer sends Food Order traffic to ingress-nginx HTTP NodePort
+`30080` on all three Kubernetes nodes. On `loadbalancer-server`, create and
+activate the configuration:
+
+```bash
+sudo vi /etc/nginx/conf.d/upstream.conf
+sudo vi /etc/nginx/conf.d/food-order.conf
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+## 5. Verify the Deployment
 
 Check cluster resources:
 
