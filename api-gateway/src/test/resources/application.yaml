@@ -1,0 +1,6 @@
+jwt:
+  secretKey: dGVzdC1zZWNyZXQta2V5LWZvci1qd3QtdmFsaWRhdGlvbi1pbi10ZXN0LWVudmlyb25tZW50LTEyMzQ1Ng==
+
+eureka:
+  client:
+    enabled: false
