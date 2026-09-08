@@ -22,8 +22,31 @@ env:
   DOCKER_IMAGE: huongskc/food-order-user-service:${{ github.sha }}
 
 jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v7
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Make mvnw executable
+        run: chmod +x ./user-service/mvnw
+
+      - name: Run unit tests
+        working-directory: ./user-service
+        run: ./mvnw test
+
   containerize:
     name: Build and Push Docker image
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
