@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { SharedTestingModule } from '../../../testing/shared-testing.module';
 
 import { RestaurantManagementComponent } from './restaurant-management.component';
 
@@ -8,6 +9,7 @@ describe('RestaurantManagementComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [SharedTestingModule],
       declarations: [RestaurantManagementComponent]
     })
     .compileComponents();
